@@ -1,4 +1,8 @@
 theme = 'PaperMod'
+baseURL = 'https://zaldre.com/'
+relativeURLs = true
+canonifyURLs = false
+
 [caches]
   [caches.images]
     dir = ':cacheDir/images'
