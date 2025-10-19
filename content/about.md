@@ -14,7 +14,7 @@ I'm Zaldre, a DevOps engineer and infrastructure enthusiast who believes in auto
 ## What I Do
 
 I specialize in:
-- **Infrastructure as Code** - Kubernetes, Azure DevOps and Hybrid Infrastucture architecture, both on prem and in the cloud
+- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastucture architecture, both on prem and in the cloud
 - **CI/CD Pipelines** - Building robust automation that just works
 - **Cloud & Container Orchestration** - Making complex systems manageable
 - **Security & Secrets Management** - Keeping production safe and compliant
