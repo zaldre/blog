@@ -1,0 +1,6 @@
+baseURL = 'https://zaldre.com/'
+languageCode = 'en-us'
+title = 'Zaldre's wonderful world of coding, infrastructure, automation and general tech tom foolery'
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
