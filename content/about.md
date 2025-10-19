@@ -1,5 +1,5 @@
 ---
-title: "About"
+title: "about"
 url: "/about/"
 hidemeta: true
 disableShare: true

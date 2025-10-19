@@ -6,9 +6,25 @@
 {{- else }}
 <meta name="robots" content="noindex, nofollow">
 {{- end }}
-
-{{- /* Title */}}
-<title>{{ if .IsHome }}{{ else }}{{ if .Title }}{{ .Title }} | {{ end }}{{ end }}{{ site.Title }}</title>
+<title>
+  {{- if .IsHome -}}
+    {{ .Site.Title }}
+  {{- else if eq .Section "posts" -}}
+    {{- if .IsSection -}}
+      zaldre | posts
+    {{- else -}}
+      zaldre | posts | {{ .Title }}
+    {{- end -}}
+  {{- else if eq .Kind "taxonomy" -}}
+    zaldre | {{ .Title }}
+  {{- else if eq .Kind "term" -}}
+    zaldre | tags | {{ .Title }}
+  {{- else if .Title -}}
+    zaldre | {{ .Title }}
+  {{- else -}}
+    {{ .Site.Title }}
+  {{- end -}}
+</title>
 
 {{- /* Meta */}}
 {{- if .IsHome }}
