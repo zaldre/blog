@@ -1,6 +1,32 @@
-baseURL = 'https://zaldre.com/'
-languageCode = 'en-us'
-title = 'Zaldre's wonderful world of coding, infrastructure, automation and general tech tom foolery'
 [caches]
   [caches.images]
     dir = ':cacheDir/images'
+
+[params]
+  author = "Zaldre"
+  description = "Coding, infrastructure, automation and general tech tom foolery"
+  # Add your social links if desired
+  # github = "zaldre"
+  # twitter = "your-handle"
+
+[markup]
+  [markup.highlight]
+    style = 'monokai'
+    lineNos = true
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # Allows HTML in markdown
+
+[menu]
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 1
+  [[menu.main]]
+    name = "Tags"
+    url = "/tags/"
+    weight = 2
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 3
