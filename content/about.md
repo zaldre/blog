@@ -1,5 +1,5 @@
 ---
-title: "about"
+title: "who is zaldre?"
 url: "/about/"
 hidemeta: true
 disableShare: true
@@ -8,17 +8,18 @@ ShowReadingTime: false
 
 <img src="/images/avatar.png" alt="Zaldre" width="200" />
 Hey there! 👋
+<br><br>
 
 I'm Chris, AKA Zaldre, a DevOps engineer and infrastructure enthusiast who believes in automating the boring stuff so humans can focus on the interesting problems.
 
 ## What I Do
 
-I specialize in:
-- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastucture architecture On-Prem and in the cloud
-- **CI/CD Pipelines** - Building robust automation that just works
+- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastucture architecture design and implementation, both On-Prem and in the cloud
 - **Cloud & Container Orchestration** - Making complex systems manageable
-- **Security & Secrets Management** - Keeping production safe and compliant
+- **CI/CD Pipelines** - Building robust automation that just works
 - **Language Polyglot** - Go, Python, Powershell, C#, Bash, Ansible, English, Thai
+- **Security & Secrets Management** - Keeping production safe and compliant
+
 
 Currently working with Kubernetes at a large distributed scale across Australia and New Zealand and have a healthy obsession with GitOps workflows.
 
