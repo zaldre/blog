@@ -20,7 +20,7 @@ I specialize in:
 - **Security & Secrets Management** - Keeping production safe and compliant
 - **Language Polyglot** - Go, Python, Powershell, C#, Bash, Ansible, English, Thai
 
-Currently working with Kubernetes, Azure, Go, and have a healthy obsession with GitOps workflows.
+Currently working with Kubernetes at a large distributed scale across Australia and New Zealand and have a healthy obsession with GitOps workflows.
 
 ## This Blog
 
