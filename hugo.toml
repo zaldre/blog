@@ -11,7 +11,7 @@ canonifyURLs = false
   author = "Zaldre"
   description = "Coding, infrastructure, automation and general tech tom foolery"
   # Add your social links if desired
-  # github = "zaldre"
+  github = "zaldre"
   # twitter = "your-handle"
 
 [markup]
