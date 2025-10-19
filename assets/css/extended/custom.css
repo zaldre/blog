@@ -1,0 +1,5 @@
+.post-title {
+    white-space: nowrap;
+    font-size: clamp(1rem, 3.5vw, 2.5rem);
+    max-width: 100%;
+}

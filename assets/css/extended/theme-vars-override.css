@@ -1,0 +1,24 @@
+/* Light mode - Darker sky blue theme */
+:root {
+    --theme: rgb(70, 130, 180); /* Steel blue background */
+    --entry: rgb(65, 105, 225); /* Royal blue for cards/entries */
+    --primary: rgba(255, 255, 255, 0.95); /* White text */
+    --secondary: rgba(255, 255, 255, 0.78); /* Slightly transparent white for secondary text */
+    --tertiary: rgba(255, 255, 255, 0.56); /* Even more transparent white */
+    --content: rgba(255, 255, 255, 0.88); /* White content text */
+    --hljs-bg: rgb(47, 79, 79); /* Dark slate gray for code blocks */
+    --code-bg: rgb(70, 130, 180); /* Inline code background matches theme */
+    --border: rgba(255, 255, 255, 0.4); /* White borders */
+}
+
+.dark {
+    --theme: rgb(10, 10, 15);
+    --entry: rgb(20, 20, 30);
+    --primary: rgb(0, 255, 255); /*CYAN */
+    --secondary: rgb(255, 255, 255); /* Electric purple */
+    --tertiary: rgb(255, 105, 180);
+    --content: rgb(255, 255, 255);
+    --hljs-bg: rgb(15, 15, 25);
+    --code-bg: rgb(25, 25, 40);
+    --border: rgba(255, 20, 147, 0.3);
+}
