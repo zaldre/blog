@@ -9,18 +9,18 @@ ShowReadingTime: false
 <img src="/images/avatar.png" alt="Zaldre" width="200" />
 Hey there! 👋
 
-I'm Zaldre, a DevOps engineer and infrastructure enthusiast who believes in automating the boring stuff so humans can focus on the interesting problems.
+I'm Chris, AKA Zaldre, a DevOps engineer and infrastructure enthusiast who believes in automating the boring stuff so humans can focus on the interesting problems.
 
 ## What I Do
 
 I specialize in:
-- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastucture architecture, both on prem and in the cloud
+- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastucture architecture On-Prem and in the cloud
 - **CI/CD Pipelines** - Building robust automation that just works
 - **Cloud & Container Orchestration** - Making complex systems manageable
 - **Security & Secrets Management** - Keeping production safe and compliant
-- **Language Polyglot** - Go, Python, Powershell, Ansible, English, Thai
+- **Language Polyglot** - Go, Python, Powershell, C#, Bash, Ansible, English, Thai
 
-Currently working with Kubernetes, Azure, Go, and a healthy obsession with GitOps workflows.
+Currently working with Kubernetes, Azure, Go, and have a healthy obsession with GitOps workflows.
 
 ## This Blog
 
@@ -30,7 +30,7 @@ Topics you'll find here:
 - Kubernetes deep-dives
 - Infrastructure automation patterns
 - CI/CD best practices
-- Cloud architecture
+- Designing scalable reliable systems
 - The occasional rant about why we over-engineer things
 
 ## Beyond the Terminal
@@ -41,7 +41,7 @@ When I'm not wrestling with YAML files, you can find me being a coffee nerd (Mel
 
 - **GitHub:** [github.com/zaldre](https://github.com/zaldre)
 - **Email:** zaldre@zaldre.com
-
+- **LinkedIn:** https://www.linkedin.com/in/chris-simpson-25020667/
 ---
 
 *This blog is built with Hugo and deployed via GitHub Actions because even my personal site needs a proper CI/CD pipeline.*
