@@ -30,7 +30,8 @@ ESO adds a new Custom Resource Definition to the cluster called an ExternalSecre
 
 You have a one year lifecycle on a pull credential for Azure Container Registry. You receive a notification that in 30 days the credential is going to expire. You generate a new credential, update the value in the vault and the External Secrets Operator will automatically pull in the new value without any further user interaction
 
-Consider the following ArgoCD Application to deploy PiHole. There is a reference to a secret called "pihole-password"
+Consider the following deployment of External-DNS. There is a secret called "cloudflareapikey"
+
 ```bash {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}
 declare a=1ffff
 echo "$a"
