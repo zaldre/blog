@@ -4,15 +4,35 @@ draft = false
 title = 'external secrets operator | azure keyvault'
 +++
 
+In recent times I've been building multiple kubernetes clusters (1500+!) across my organisation, but one of the challenges I've faced has been how to manage secret.
 
+It's one of those things that can be a real headache if you don't automate the pain away, particularly when it comes to a large number of clusters, having something automated gets around those pesky change control requirements
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a purus tempus, consectetur turpis vel, lacinia ex. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus aliquet suscipit elit, sit amet porttitor nunc bibendum et. Aenean ex quam, blandit quis convallis in, accumsan eu arcu. Integer semper non erat consequat volutpat. Nunc diam ante, posuere nec dapibus ac, mollis non mauris. Vestibulum nec orci at metus auctor congue et eu risus. Integer ut vehicula lectus. Vivamus luctus porttitor congue.
+Enter, The External Secrets Operator (https://external-secrets.io)
 
-Nam eget congue orci, et pharetra tellus. Sed at rutrum neque. Nunc egestas scelerisque ipsum, sed auctor purus pharetra a. In neque massa, fringilla ullamcorper semper at, dapibus ut justo. Maecenas pretium ipsum justo, in ullamcorper neque commodo quis. Aliquam fermentum, eros vel vulputate laoreet, risus nisl tempus risus, ac rhoncus est odio porttitor turpis. Pellentesque viverra aliquet sollicitudin. Aenean consectetur ipsum neque, at condimentum lorem condimentum id. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris finibus felis at felis venenatis, eu dignissim ante tempor. Ut sagittis eget urna quis maximus. Proin in nibh auctor, lobortis libero in, vulputate nulla. In a egestas nibh.
+**What does it do?**
 
-Quisque a lobortis nisi, quis finibus justo. Sed enim ipsum, mattis ut ligula eget, elementum tempus massa. Ut ex ante, finibus eu viverra vitae, dictum a erat. Nunc et urna vel arcu pellentesque molestie eget in nunc. Proin vestibulum, elit non luctus pharetra, odio metus dignissim nunc, vel molestie lectus lorem at tellus. Nullam dapibus, justo in auctor rhoncus, tortor sapien mattis erat, in blandit lacus velit sed urna. Sed efficitur quis ex a pharetra. Integer iaculis, metus quis hendrerit interdum, leo turpis semper libero, vel gravida augue massa ut risus. Vivamus pulvinar tellus a nulla rhoncus iaculis. Donec et tortor orci. Morbi sagittis aliquet sem id fermentum. Cras nisl tortor, egestas non quam eget, fringilla blandit velit. Nulla nisl nisl, pellentesque id consequat et, hendrerit sit amet dolor. Integer euismod magna ante, sed gravida massa laoreet fermentum.
+The external secrets operator manages the lifecycle of secrets within a Kubernetes cluster. This could be a container registry pull credential, an application authentication mechanism or really anything else that you think is worth protecting
 
-Fusce molestie id magna eleifend vestibulum. Fusce venenatis nisi quis est interdum, ac pulvinar orci rutrum. Duis congue egestas ante, in dignissim nunc feugiat eu. Nunc ullamcorper in risus in rhoncus. Maecenas vestibulum luctus velit. Pellentesque ut lacus vitae odio dapibus tempus a sed elit. Duis convallis eleifend vehicula. Integer pretium pretium pellentesque. Duis in erat id urna hendrerit eleifend. Donec turpis lacus, suscipit et molestie sed, rhoncus eu velit. Nullam eu ante neque. Mauris nec nibh euismod, consectetur nisl sit amet, vestibulum tortor.
+ESO integrates with a number of back ends such as Hashicorp Vault, Azure Key Vault and much much more: https://external-secrets.io/latest/provider/aws-secrets-manager/
 
-Fusce lacinia ipsum in mauris vehicula vehicula. Sed fringilla, lectus nec ullamcorper sodales, enim velit consequat ipsum, sollicitudin imperdiet felis lorem bibendum est. Aliquam bibendum at mauris sit amet venenatis. Vivamus et lorem et velit blandit vehicula. Vivamus sit amet mollis nibh, nec mollis risus. Mauris a turpis vestibulum, aliquet justo quis, tristique diam. Nullam ac justo commodo, tempor dui vitae, pellentesque nisi. Nunc feugiat odio at enim efficitur hendrerit.
+**What problem does this solve?**
 
+If your organisation is anything like mine, secret management at scale can become a real issue (Yes, We have seen secrets committed to git)
+
+Managing secrets using ESO means you can quickly rotate compromised credentials, update expired credentials and keep secrets out of your code repository while still continuing to use your GitOps workflow.
+
+**How does it work?**
+
+ESO adds a new Custom Resource Definition to the cluster called an ExternalSecret. This object is a reference to an entry stored within your vault of choice. You can then set a reconcile threshold to periodicially query your vault for changes.
+
+**Example:**
+
+You have a one year lifecycle on a pull credential for Azure Container Registry. You receive a notification that in 30 days the credential is going to expire. You generate a new credential, update the value in the vault and the External Secrets Operator will automatically pull in the new value without any further user interaction
+
+Consider the following ArgoCD Application to deploy PiHole. There is a reference to a secret called "pihole-password"
+```bash {class="my-class" id="my-codeblock" lineNos=inline tabWidth=2}
+declare a=1ffff
+echo "$a"
+exit
+```
