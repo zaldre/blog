@@ -4,7 +4,7 @@ draft = false
 title = 'external secrets operator | azure keyvault'
 +++
 
-In recent times I've been building multiple kubernetes clusters (1500+!) across my organisation, but one of the challenges I've faced has been how to manage secret.
+In recent times I've been building multiple kubernetes clusters (1500+!) across my organisation, but one of the challenges I've faced has been how to manage secrets.
 
 It's one of those things that can be a real headache if you don't automate the pain away, particularly when it comes to a large number of clusters, having something automated gets around those pesky change control requirements
 
@@ -18,9 +18,9 @@ ESO integrates with a number of back ends such as Hashicorp Vault, Azure Key Vau
 
 **What problem does this solve?**
 
-If your organisation is anything like mine, secret management at scale can become a real issue (Yes, We have seen secrets committed to git)
+If your organisation is anything like mine, secret management at scale can become a real issue (Yes, We have historically seen secrets committed to git)
 
-Managing secrets using ESO means you can quickly rotate compromised credentials, update expired credentials and keep secrets out of your code repository while still continuing to use your GitOps workflow.
+Managing secrets using ESO means you can quickly rotate compromised credentials, update expired credentials and keep secrets out of your code repository while still continuing to use your GitOps workflow. It also offers the ability to programatically rotate the credentials periodically, improving security posture and minimises human error.
 
 **How does it work?**
 

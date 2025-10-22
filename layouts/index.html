@@ -1,0 +1,78 @@
+{{- define "main" }}
+
+<!-- Custom Profile Section -->
+<div class="profile">
+    <div class="profile_inner">
+        <img draggable="false" src="/images/avatar.png" alt="Zaldre" title="Zaldre" height="200" width="200" />
+        <h1>Zaldre</h1>
+        <span>DevOps | SRE | Automation Enthusiast</span>
+        
+        <div class="buttons">
+            <a class="button" href="/posts/" rel="noopener" title="Posts">
+                <span class="button-inner">
+                    <span>Posts</span>
+                </span>
+            </a>
+            <a class="button" href="/about/" rel="noopener" title="About Me">
+                <span class="button-inner">
+                    <span>About Me</span>
+                </span>
+            </a>
+            <a class="button" href="https://github.com/zaldre" rel="noopener" title="GitHub">
+                <span class="button-inner">
+                    <span>GitHub</span>
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="14" width="14">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </span>
+            </a>
+            <a class="button" href="https://www.linkedin.com/in/chris-simpson-25020667/" rel="noopener" title="LinkedIn">
+                <span class="button-inner">
+                    <span>LinkedIn</span>
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="14" width="14">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<!-- Recent Posts Section -->
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
+{{- $recentPosts := first 2 $pages }}
+
+{{- if $recentPosts }}
+<div class="recent-posts-section">
+    <h2 class="recent-posts-title">Recent Posts</h2>
+    <div class="recent-posts-grid">
+        {{- range $recentPosts }}
+        <article class="recent-post-card">
+            <header class="entry-header">
+                <h3 class="entry-hint-parent">
+                    <a href="{{ .Permalink }}">{{ .Title }}</a>
+                </h3>
+            </header>
+            {{- if (ne (.Param "hideSummary") true) }}
+            <div class="entry-content">
+                <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+            </div>
+            {{- end }}
+            {{- if not (.Param "hideMeta") }}
+            <footer class="entry-footer">
+                {{- partial "post_meta.html" . -}}
+            </footer>
+            {{- end }}
+        </article>
+        {{- end }}
+    </div>
+</div>
+{{- end }}
+
+{{- end }}{{- /* end main */ -}}

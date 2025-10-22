@@ -12,7 +12,43 @@ canonifyURLs = false
   description = "Coding, infrastructure, automation and general tech tom foolery"
   # Add your social links if desired
   github = "zaldre"
+  linkedin = "chris-simpson-25020667"
+  email = "zaldre@zaldre.com"
   # twitter = "your-handle"
+ 
+  # Profile mode for homepage
+  [params.profileMode]
+    enabled = false
+    title = "Zaldre"
+    subtitle = "DevOps Engineer | Infrastructure Enthusiast | Automation Advocate"
+    imageUrl = "/images/avatar.png"
+    imageTitle = "Zaldre"
+    imageWidth = 200
+    imageHeight = 200
+    buttons = [
+      { name = "Posts", url = "/posts/" },
+      { name = "About Me", url = "/about/" },
+      { name = "GitHub", url = "https://github.com/zaldre" },
+      { name = "LinkedIn", url = "https://www.linkedin.com/in/chris-simpson-25020667/" }
+    ]
+  
+  # Additional homepage enhancements
+  ShowReadingTime = true
+  ShowWordCount = true
+  ShowPostNav = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  
+  # Enable search
+  [params.search]
+    enable = true
+    type = "fuse"
+    content = "content"
+    placeholder = "Search posts..."
+    maxResultLength = 10
+    snippetLength = 30
+    highlightTag = "mark"
+    fuseOpts = { "keys" = ["title", "permalink", "summary", "content"] }
 
 [markup]
   [markup.highlight]
