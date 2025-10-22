@@ -1,5 +1,5 @@
 +++
-date = '2025-10-23T20:40:02+11:00'
+date = '2025-10-21T20:40:02+11:00'
 draft = false
 title = 'external secrets operator | azure keyvault'
 +++
