@@ -60,10 +60,14 @@ canonifyURLs = false
 
 [menu]
   [[menu.main]]
+    name = "home"
+    url = "/"
+    weight = 1
+  [[menu.main]]
     name = "posts"
     url = "/posts/"
-    weight = 1
+    weight = 2
   [[menu.main]]
     name = "about me"
     url = "/about/"
-    weight = 2
+    weight = 3
