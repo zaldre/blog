@@ -1,5 +1,5 @@
 +++
-date = '2025-10-19T20:40:02+11:00'
+date = '2025-10-23T20:40:02+11:00'
 draft = false
 title = 'external secrets operator | azure keyvault'
 +++
@@ -62,6 +62,7 @@ spec:
   provider:
     azurekv:
       # Azure Key Vault config here
+      #ADD KV DETAILS
 ```
 
 _SecretStore (namespace-scoped, only for one namespace):_
@@ -75,11 +76,15 @@ spec:
   provider:
     azurekv:
       # Azure Key Vault config here
+
+      #TODO ADD KV DETAILS
 ```
 
 ---
 
 #### How to create and store a docker registry secret in Azure Key Vault ####
+
+### REDO THE CRED CREATION
 
 1. **Create a docker registry secret as a file (base64 encoded json):**
 
@@ -114,7 +119,7 @@ az keyvault secret set \
 az keyvault secret show --vault-name <VAULT_NAME> --name docker-config-json
 ```
 
-Your ExternalSecret configuration can now reference the `docker-config-json` object stored in Azure Key Vault!
+Your ExternalSecret configuration can now reference the `docker-config-json` object stored in Azure Key Vault
 
 
 ---
