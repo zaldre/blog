@@ -1,0 +1,15 @@
+{{- $file := .Get 0 -}}
+{{- $language := .Get 1 | default "yaml" -}}
+{{- $title := .Get 2 | default "" -}}
+
+{{- if $title -}}
+**{{ $title }}**
+{{- end -}}
+
+{{- $filePath := printf "code/%s" $file -}}
+{{- $content := readFile $filePath -}}
+{{- if $content -}}
+{{- highlight $content $language "" -}}
+{{- else -}}
+<!-- Error: File {{ $filePath }} not found -->
+{{- end -}}
