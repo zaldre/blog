@@ -44,6 +44,8 @@ Here's a registry credential I make available to my Jenkins instance. This makes
 
 Before storing or retrieving secrets, you need an Azure Key Vault instance for your secrets, and configure how your cluster will authenticate to it.
 
+---
+
 ### 1. Create the Azure Key Vault
 
 If you do not already have a Key Vault, create one:
@@ -51,8 +53,6 @@ If you do not already have a Key Vault, create one:
 ```bash
 az keyvault create --name <VAULT_NAME> --resource-group <RESOURCE_GROUP> --location <LOCATION>
 ```
-
----
 
 ### 2. Authentication Methods
 
@@ -127,7 +127,7 @@ spec:
 
 For more details and advanced authentication options, see the [external-secrets documentation](https://external-secrets.io/latest/provider-azure-key-vault/).
 
-Be sure your user, service principal, or managed identity has `set`, `get`, and `list` permissions on secrets:
+Be sure your app registration/enterprise app, service principal, or managed identity has `set`, `get`, and `list` permissions on secrets:
 
 ```bash
 az keyvault set-policy \
@@ -135,6 +135,8 @@ az keyvault set-policy \
   --secret-permissions get list set \
   --object-id <IDENTITY_OBJECT_ID>
 ```
+
+---
 
 ### SecretStores - Where the objects are referenced ###
 
@@ -193,14 +195,13 @@ spec:
           namespace: jenkins
 ```
 
----
-
-
 The important take away from this is you now only manage a much smaller subset of secrets, The one secret into the Vault(s). Everything else is abstracted away.
 
 Updating a secret can now be done easily by updating the value directly in Azure Key Vault—either using the Azure CLI or the Azure Portal web interface.
 
-##Managing and updating secrets##
+---
+
+## Managing and updating secrets ##
 
 Once you've setup authentication into the vault, you'll then want to manage and update the secrets contained in the vault for consumption in your cluster. There are a few ways to approach it.
 
@@ -224,7 +225,7 @@ az keyvault secret set --vault-name <VAULT_NAME> --name <SECRET_NAME> --file <FI
 
 After updating the secret value in Key Vault (via CLI or the Portal), the External Secret will automatically sync the change to your Kubernetes secret on the next refresh.
 
-
+---
 That's all for this post, Hope you found it useful, If there's any information you want clarified, thoughts, opinions, please do let me know
 
 <a href="mailto:zaldre@zaldre.com">zaldre@zaldre.com</a>
