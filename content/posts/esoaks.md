@@ -20,7 +20,7 @@ Managing secrets using ESO means you can quickly rotate compromised credentials,
 
 ## What does it do? ##
 
-The external secrets operator manages the lifecycle of secrets within a Kubernetes cluster. This could be a container registry pull credential, an API key, or any other sensitive data worth protecting.
+The external secrets operator manages the lifecycle of secrets within a Kubernetes cluster. This could be a container registry pull credential, an API key, password or any other sensitive data worth protecting.
 
 ESO integrates with a number of back ends such as Hashicorp Vault, Azure Key Vault, AWS, etc 
 https://external-secrets.io/latest/provider/azure-key-vault/
@@ -36,93 +36,9 @@ You have a one year lifecycle on a pull credential for Azure Container Registry.
 
 ### Example ###
 
-Heres a registry credential I make available to my Jenkins instance. This makes the secret "regcred" available for my build agents to consume
+Heres a registry credential I make available to my Jenkins instance. This makes the secret "regcred" available for my build agents to consume. The artifact is committed to git, but contains no secret data of its own. Only a reference point to the vault.
 
 {{< code "eso/jenkins-externalsecret.yml" "yaml" >}}
-
-### ClusterSecretStore vs SecretStore ###
-
-External Secrets Operator supports two main types of "secret stores" as external secret providers in Kubernetes. A SecretStore/ClusterSecret store is a reference to your vault of choice within Kubernetes and acts as a logical permissions boundary for the secrest to be ingested.
-
-- **SecretStore**: This is a namespaced resource. Secrets retrieved via a `SecretStore` are only available inside the same namespace the store is defined in.
-- **ClusterSecretStore**: This is a cluster-scoped resource. Secrets from a `ClusterSecretStore` can be referenced by `ExternalSecrets` objects in any namespace, not just one.
-
-ClusterSecretStore is especially useful when you want to reference the same secret value across multiple namespaces, such as a common container registry pull credential.
-
-
-Example YAML fragments:
-
-_ClusterSecretStore (cluster-scoped, available to all namespaces):_
-```yaml
-apiVersion: external-secrets.io/v1
-kind: ClusterSecretStore
-metadata:
-  name: azure-keyvault-cluster-store
-spec:
-  provider:
-    azurekv:
-      # Azure Key Vault config here
-      #ADD KV DETAILS
-```
-
-_SecretStore (namespace-scoped, only for one namespace):_
-```yaml
-apiVersion: external-secrets.io/v1
-kind: SecretStore
-metadata:
-  name: azure-keyvault-ns-store
-  namespace: my-namespace
-spec:
-  provider:
-    azurekv:
-      # Azure Key Vault config here
-
-      #TODO ADD KV DETAILS
-```
-
----
-
-#### How to create and store a docker registry secret in Azure Key Vault ####
-
-### REDO THE CRED CREATION
-
-1. **Create a docker registry secret as a file (base64 encoded json):**
-
-```bash
-kubectl create secret docker-registry regcred \
-  --docker-server=<ACR_LOGIN_SERVER> \
-  --docker-username=<ACR_USERNAME> \
-  --docker-password=<ACR_PASSWORD> \
-  --docker-email=<YOUR_EMAIL> \
-  --dry-run=client -o json | \
-jq -r '.data[".dockerconfigjson"]' > docker-config-json.b64
-```
-
-2. **Store the secret in Azure Key Vault**
-
-First, decode the base64 secret to get the JSON for Key Vault:
-```bash
-base64 -d docker-config-json.b64 > docker-config.json
-```
-
-Then upload to Azure Key Vault (replace `<VAULT_NAME>` and `<KEY_NAME>`):
-
-```bash
-az keyvault secret set \
-  --vault-name <VAULT_NAME> \
-  --name docker-config-json \
-  --file docker-config.json
-```
-
-3. **(Optional) Confirm upload**
-```bash
-az keyvault secret show --vault-name <VAULT_NAME> --name docker-config-json
-```
-
-Your ExternalSecret configuration can now reference the `docker-config-json` object stored in Azure Key Vault
-
-
----
 
 ## Creating the Azure Key Vault and Configuring Authentication
 
@@ -136,22 +52,19 @@ If you do not already have a Key Vault, create one:
 az keyvault create --name <VAULT_NAME> --resource-group <RESOURCE_GROUP> --location <LOCATION>
 ```
 
-Be sure your user, service principal, or managed identity has `set`, `get`, and `list` permissions on secrets:
-
-```bash
-az keyvault set-policy \
-  --name <VAULT_NAME> \
-  --secret-permissions get list set \
-  --object-id <IDENTITY_OBJECT_ID>
-```
-
 ---
 
 ### 2. Authentication Methods
 
-You can configure the External Secrets Operator to authenticate to Azure Key Vault in two main ways:
+You can configure the External Secrets Operator to authenticate to Azure Key Vault in a variety of ways depending on where it's hosted. 
+We won't touch on all the possibilities as they are well document <a href="https://external-secrets.io/latest/provider/azure-key-vault/">here</a>
+
+However here are the 2 primary ones we consume in my environment
 
 #### Example A: Using a Managed Identity (Recommended in AKS)
+
+This is the one we use for both our AKS Clusters, and also for our Openshift clusters at the edge. A Workload Identity or Managed Identity is created with access to the vault and then we minimise the requirements for ongoing secrets management into the vault itself.
+
 
 Configure your `SecretStore` or `ClusterSecretStore` to use a managed identity assigned to your AKS cluster/node pool.
 
@@ -176,61 +89,130 @@ spec:
 - Use `authType: ManagedIdentity` if using legacy AKS managed identities  
 - Set `identityId` to the client ID of your user-assigned managed identity if not relying on the default
 
-#### Example B: Using a Client ID/Secret (Service Principal)
+#### Example B: Using a Client ID/Secret
 
-If you want to use an Azure AD application (service principal) for authentication:
+This is handy for clusters that may not easily integrate with Azure, It uses a more traditional client id/secret method. This means you will still have to maintain at least 1 secret value per SecretStore/ClusterSecretStore that you want to authenticate with.
 
-First, create a Service Principal and give it access:
 
-```bash
-az ad sp create-for-rbac --name <SP_NAME> --sdk-auth
-```
+First, create an App Registration/Enterprise application and grant it access to the vault with a read only role.
 
-Assign the necessary Key Vault secret permissions as done above, using the service principal's object ID.
+Once created, create a client secret and create a yaml definition with your values as shown.
+
+{{< code "eso/azure-client-secret.yml" "yaml" >}}
 
 Then configure your `SecretStore` or `ClusterSecretStore`:
 
+EG: 
+
+```yaml
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: azure-keyvault-cluster-store
+spec:
+  provider:
+    azurekv:
+      tenantId: "9b05fdb9-40c0-4f4a-a654-386013ae7d6a"
+      vaultUrl: "https://zaldre.vault.azure.net/"
+      authSecretRef:
+        clientId:
+          name: azure-credentials
+          key: client-id
+          namespace: external-secrets
+        clientSecret:
+          name: azure-credentials
+          key: client-secret
+          namespace: external-secrets
+```
+
+For more details and advanced authentication options, see the [external-secrets documentation](https://external-secrets.io/latest/provider-azure-key-vault/).
+
+Be sure your user, service principal, or managed identity has `set`, `get`, and `list` permissions on secrets:
+
+```bash
+az keyvault set-policy \
+  --name <VAULT_NAME> \
+  --secret-permissions get list set \
+  --object-id <IDENTITY_OBJECT_ID>
+```
+
+### SecretStores - Where the objects are referenced ###
+
+External Secrets Operator supports two main types of "secret stores". A SecretStore/ClusterSecret store is a reference to your vault of choice within Kubernetes and acts as a logical permissions boundary for the secrets to be ingested.
+
+- **SecretStore**: This is a namespaced resource. Secrets retrieved via a `SecretStore` are only available inside the same namespace the store is defined in.
+- **ClusterSecretStore**: This is a cluster-scoped resource. Secrets from a `ClusterSecretStore` can be referenced by `ExternalSecrets` objects in any namespace, not just one.
+
+ClusterSecretStore is especially useful when you want to reference the same secret value across multiple namespaces, such as a common container registry pull credential minimising the need to update the value in multiple places.
+
+
+Example YAML fragments:
+
+_ClusterSecretStore (cluster-scoped, available to all namespaces):_
+```yaml
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: azure-keyvault-cluster-store
+spec:
+  provider:
+    azurekv:
+      tenantId: "abcd-1234-efgh-9876"
+      vaultUrl: "https://zaldres-secret-vault.vault.azure.net/"
+      authSecretRef:
+        clientId:
+          name: azure-credentials
+          key: client-id
+          namespace: external-secrets
+        clientSecret:
+          name: azure-credentials
+          key: client-secret
+          namespace: external-secrets
+```
+
+_SecretStore (namespace-scoped, only for one namespace):_
 ```yaml
 apiVersion: external-secrets.io/v1
 kind: SecretStore
 metadata:
-  name: azure-keyvault-ns-store
-  namespace: my-namespace
+  name: jenkins-secretstore
+  namespace: jenkins
 spec:
   provider:
     azurekv:
-      tenantId: <AZURE_TENANT_ID>
-      vaultUrl: https://<VAULT_NAME>.vault.azure.net/
-      authType: ServicePrincipal
-      clientId: <CLIENT_ID>
-      clientSecret:
-        # reference to Kubernetes secret containing client secret value
-        name: azure-sp-secret
-        key: client-secret
-```
-
-You'll need to create the referenced Kubernetes secret first:
-
-```bash
-kubectl create secret generic azure-sp-secret \
-  --from-literal=client-secret=<CLIENT_SECRET> \
-  -n my-namespace
+      tenantId: "abcd-1234-efgh-9876"
+      vaultUrl: "https://zaldres-secret-vault.vault.azure.net/"
+      authSecretRef:
+        clientId:
+          name: azure-credentials
+          key: client-id
+          namespace: jenkins
+        clientSecret:
+          name: azure-credentials
+          key: client-secret
+          namespace: jenkins
 ```
 
 ---
-
-For more details and advanced authentication options, see the [external-secrets documentation](https://external-secrets.io/latest/provider-azure-key-vault/).
 
 
 The important take away from this is you now only manage a much smaller subset of secrets, The one secret into the Vault(s). Everything else is abstracted away.
 
 Updating a secret can now be done easily by updating the value directly in Azure Key Vault—either using the Azure CLI or the Azure Portal web interface.
 
+##Managing and updating secrets##
+
+Once you've setup authentication into the vault, you'll then want to managed and update the secrets contained in the vault for consumption in your cluster. There are a few ways to approach it.
+
+The general rule of thumb is that you want to use the "az" cli commands for files, and the webUI for strings
+
 **A. Using Azure CLI:**
 
 For example, to update (set) a secret value from the command line:
 ```bash
-az keyvault secret set --vault-name <VAULT_NAME> --name <SECRET_NAME> --value '<NEW_SECRET_VALUE>'
+az keyvault secret set --vault-name <VAULT_NAME> --name <SECRET_NAME> --value <NEW_SECRET_VALUE>
+
+az keyvault secret set --vault-name <VAULT_NAME> --name <SECRET_NAME> --file <FILE_NAME_WITH_ABSOLUTE_PATH>
 ```
 
 **B. Using the Azure Portal (GUI):**
@@ -241,5 +223,10 @@ az keyvault secret set --vault-name <VAULT_NAME> --name <SECRET_NAME> --value '<
 4. Click **+ New Version**, enter the new value, and click **Create**.
 
 After updating the secret value in Key Vault (via CLI or the Portal), the External Secret will automatically sync the change to your Kubernetes secret on the next refresh.
+
+
+That's all for this post, Hope you found it useful, If there's any information you want clarified, thoughts, opinions, please do let me know
+
+<a href="mailto:zaldre@zaldre.com">zaldre@zaldre.com</a>
 
 ---
