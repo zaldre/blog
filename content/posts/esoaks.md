@@ -15,7 +15,7 @@ Enter <a href="https://external-secrets.io">The External Secrets Operator</a>
 
 If your organisation is anything like mine, secret management at scale can become a real issue (Yes, We have historically seen secrets committed to git)
 
-Managing secrets using ESO means you can quickly rotate compromised credentials, update expired credentials and keep secrets out of your code repository while still continuing to use your GitOps workflow. It also offers the ability to programatically rotate the credentials periodically, improving security posture and minimising human error.
+Managing secrets using ESO means you can quickly rotate compromised credentials, update expired credentials and keep secrets out of your code repository while still continuing to use your GitOps workflow. It also offers the ability to programmatically rotate the credentials periodically, improving security posture and minimising human error.
 
 
 ## What does it do? ##
@@ -28,7 +28,7 @@ https://external-secrets.io/latest/provider/azure-key-vault/
 
 ### How does it work? ###
 
-ESO adds a new Custom Resource Definition to the cluster called an ExternalSecret. This object is a reference to an entry stored within your vault of choice. You can then set a reconcile threshold to periodicially query your vault for changes.
+ESO adds a new Custom Resource Definition to the cluster called an ExternalSecret. This object is a reference to an entry stored within your vault of choice. You can then set a reconcile threshold to periodically query your vault for changes.
 
 ### Scenario ###
 
@@ -36,7 +36,7 @@ You have a one year lifecycle on a pull credential for Azure Container Registry.
 
 ### Example ###
 
-Heres a registry credential I make available to my Jenkins instance. This makes the secret "regcred" available for my build agents to consume. The artifact is committed to git, but contains no secret data of its own. Only a reference point to the vault.
+Here's a registry credential I make available to my Jenkins instance. This makes the secret "regcred" available for my build agents to consume. The artifact is committed to git, but contains no secret data of its own. Only a reference point to the vault.
 
 {{< code "eso/jenkins-externalsecret.yml" "yaml" >}}
 
@@ -202,7 +202,7 @@ Updating a secret can now be done easily by updating the value directly in Azure
 
 ##Managing and updating secrets##
 
-Once you've setup authentication into the vault, you'll then want to managed and update the secrets contained in the vault for consumption in your cluster. There are a few ways to approach it.
+Once you've setup authentication into the vault, you'll then want to manage and update the secrets contained in the vault for consumption in your cluster. There are a few ways to approach it.
 
 The general rule of thumb is that you want to use the "az" cli commands for files, and the webUI for strings
 
