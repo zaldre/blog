@@ -4,13 +4,13 @@ draft = false
 title = 'kind | kubernetes in docker'
 +++
 
-I've been working with Kubernetes for some time now, and while my preferred platform of choice is <a href="https://www.talos.dev/">talos</a> one of the challenges I've always faced is how to test and develop and iterate quickly without spinning up a full cluster or dealing with expensive cloud resources.
+I've been working with Kubernetes for some time now, and while my preferred platform of choice is <a href="https://www.talos.dev/">talos</a> one of the challenges I've always faced is how to test, develop and iterate quickly without spinning up a full cluster or dealing with expensive cloud resources.
 
 That is where <a href="https://kind.sigs.k8s.io">kind (Kubernetes in Docker)</a> comes in handy
 
 ## What problem does this solve? ##
 
-Kind allows you to quickly and easily spin up kubernetes clusters from within docker itself. For me I use this when I need to test things like GitOps configurations that have multiple cluster requirements (Think ApplicationSets in ArgoCD). 
+Kind allows you to quickly and easily spin up Kubernetes clusters from within docker itself. For me I use this when I need to test things like GitOps configurations that have multiple cluster requirements (Think ApplicationSets in ArgoCD). 
 
 You can have multiple clusters running as docker containers on the same machine, eliminating the TTD (time to deploy) quite dramatically.
 
