@@ -54,26 +54,19 @@ One of kind's powerful features is the ability to create multi-node clusters usi
 
 Create a file called `kind-config.yaml`:
 
-```yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
-- role: control-plane
-- role: worker
-- role: worker
-```
+{{< code "kind/kind-config.yml" "yaml" >}}
 
 Then create the cluster with:
 
 ```bash
-kind create cluster --name multi-node --config kind-config.yaml
+kind create cluster --name multi-node --config kind-config.yml
 ```
 
-This gives you a cluster with one control plane node and two worker nodes—perfect for testing more complex scenarios.
+This gives you a cluster with three control plane nodes and three worker nodes—perfect for testing more complex scenarios.
 
 ### Loading container images ###
 
-One common challenge with Kubernetes is that you need to pull conatainer images from container registries during testing. This makes working offline or testing local images slow and laborious.
+One common challenge with Kubernetes is that you need to pull images from container registries during testing. This makes working offline or testing local images slow and laborious.
 
 kind solves this with the `kind load docker-image` command.
 
