@@ -1,23 +1,27 @@
+---
+# HTTPRoute for external access (with external-dns annotation)
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: bazarr
-  namespace: bazarr
+  name: stats
+  namespace: stats
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: stats.zaldre.com
+    external-dns.alpha.kubernetes.io/ttl: "300"
 spec:
   parentRefs:
   - name: gateway
     namespace: envoy-gateway-system
-    sectionName: https-terminate
   hostnames:
-  - "bazarr.zaldre.com"
+  - "stats.zaldre.com"
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: bazarr
-      port: 6767
+    - name: stats
+      port: 80
     filters:
     - type: RequestHeaderModifier
       requestHeaderModifier:
@@ -26,38 +30,17 @@ spec:
           value: https
 
 ---
-# SecurityPolicy for IP whitelisting
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: bazarr-ip-whitelist
-  namespace: bazarr
-spec:
-  targetRefs:
-  - group: gateway.networking.k8s.io
-    kind: HTTPRoute
-    name: bazarr
-  authorization:
-    rules:
-    - action: Allow
-      principal:
-        clientCIDRs:
-        - 10.0.0.0/8
-        - 192.168.0.0/16
-    defaultAction: Deny
-
----
-# BackendTrafficPolicy for session affinity (cookie-based)
+# BackendTrafficPolicy for session affinity (applies to both routes)
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
-  name: bazarr-affinity
-  namespace: bazarr
+  name: stats-affinity
+  namespace: stats
 spec:
   targetRefs:
   - group: gateway.networking.k8s.io
     kind: HTTPRoute
-    name: bazarr
+    name: stats
   loadBalancer:
     type: ConsistentHash
     consistentHash:
@@ -67,5 +50,4 @@ spec:
         ttl: 48h
         attributes:
           SameSite: Lax
-
 

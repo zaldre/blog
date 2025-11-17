@@ -1,12 +1,12 @@
 +++
-date = '2025-11-01T10:00:00+11:00'
+date = '2025-11-17T10:00:00+11:00'
 draft = false
 title = 'gatewayapi | replacing ingress-nginx with envoy'
 +++
 
 If you've been living under a rock, or maybe just busy with real life stuff, you might've missed the recent news that the fan favorite <a href="https://github.com/kubernetes/ingress-nginx">ingress-nginx</a> is going to be <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">deprecated</a>
 
-As someone who uses this software extensively both personally and professionally, this is a hard pill to swallow, but a perfect opportunity to prioritise learning the Gateway API. After all, if you're going to migrate anyway, you might as well do it on your own terms rather than waiting until the last minute when you're dealing with a production incident at 3am.
+As someone who uses this software extensively both personally and professionally, this is a hard pill to swallow, but a perfect opportunity to prioritise learning the Gateway API. After all, if you're going to migrate anyway, you might as well take the leap sooner rather than later
 
 ## What is it? ##
 
@@ -46,6 +46,8 @@ In addition, In previous implementations of Ingress, I had to copy my wildcard S
 
 For my home lab setup, I chose <a href="https://gateway.envoyproxy.io">Envoy Gateway</a> as the implementation. Envoy is battle-tested, performant, and has excellent observability. Plus, the Envoy Gateway project makes it dead simple to deploy—it's just a Helm chart.
 
+In this example we will be keeping it simple and using 1 Gateway that will handle both internal (LAN) and external (WAN) traffic. In production, you'd likely want to create 2 different Gateways using 2 Loadbalancers to create the required segragation
+
 ### Installation ###
 
 I'm running this on a Talos cluster with ArgoCD managing everything via GitOps, so the installation is handled through an ArgoCD Application:
@@ -62,7 +64,7 @@ Once Envoy Gateway is installed, you need to create three resources to get traff
 
 {{< code "gateway/envoy-gatewayclass.yml" "yaml" >}}
 
-**2. EnvoyProxy** - This is Envoy-specific configuration for how the gateway should be deployed. In my case, I'm using MetalLB for load balancing, so I specify a static IP:
+**2. EnvoyProxy** - This is the Envoy-specific configuration for how the gateway should be deployed. In my case, I'm using MetalLB for load balancing, so I specify a static IP:
 
 {{< code "gateway/envoy-proxy.yml" "yaml" >}}
 
@@ -74,7 +76,21 @@ This Gateway listens on port 443 for HTTPS traffic to any `*.zaldre.com` hostnam
 
 ### Creating routes ###
 
-Now for the fun part—creating routes for your applications. Each application gets its own HTTPRoute resource. Here's an example for my Immich instance:
+Now for the fun part—creating routes for your applications. Each application gets its own HTTPRoute resource. Let's start with a simple example—my stats dashboard, which is accessible from both internal and external networks:
+
+{{< code "gateway/stats-route.yml" "yaml" >}}
+
+This is a straightforward route:
+- Routes traffic for `stats.zaldre.com` to the `stats` service on port 80
+- Sets the `X-Forwarded-Proto` header so the backend knows it's receiving HTTPS traffic
+- Uses a BackendTrafficPolicy for session affinity (cookie-based load balancing)
+- Notice there's no SecurityPolicy here—this route is open to both internal and external traffic
+
+The annotations on the HTTPRoute are for external-dns integration, which automatically creates DNS records for the hostname.
+
+### Adding security policies ###
+
+For services that should only be accessible from internal networks, you can add a SecurityPolicy. Here's my Immich instance with IP whitelisting:
 
 {{< code "gateway/immich-route.yml" "yaml" >}}
 
@@ -95,15 +111,7 @@ Let me break down what's happening here:
 - Ensures users stick to the same backend pod (important for stateful applications)
 - Sets a 48-hour cookie TTL with SameSite=Lax
 
-### More examples ###
-
-Not every route needs all these policies. Here's a simpler one for Bazarr:
-
-{{< code "gateway/bazarr-route.yml" "yaml" >}}
-
-Same pattern—HTTPRoute with SecurityPolicy and BackendTrafficPolicy. Once you've done one, the rest are just copy-paste with different hostnames and service names.
-
-### External backends ###
+### Routing to external services ###
 
 One cool thing I discovered is that Gateway API can route to services outside your cluster. I use this for my NAS:
 
