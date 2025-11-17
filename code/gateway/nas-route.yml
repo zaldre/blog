@@ -1,0 +1,68 @@
+---
+# Service definition for external backend (no selector = headless service)
+apiVersion: v1
+kind: Service
+metadata:
+  name: nas-backend
+  namespace: nas
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+    name: http
+
+---
+# EndpointSlice pointing to external service outside Kubernetes
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: nas-backend
+  namespace: nas
+  labels:
+    kubernetes.io/service-name: nas-backend
+addressType: IPv4
+endpoints:
+- addresses:
+  - "10.0.0.200"
+ports:
+- port: 8080
+  protocol: TCP
+  name: http
+
+---
+# HTTPRoute for nas.zaldre.com
+# NOTE: This configuration terminates TLS at the gateway and forwards HTTP to the backend.
+# The QNAP must be configured to accept HTTP connections (not just HTTPS) for this to work.
+# To configure QNAP: Control Panel > System > General Settings > System Administration
+# - Ensure HTTP port (typically 80 or 8080) is enabled
+# - Disable "Force secure connection (HTTPS) only" if enabled
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nas
+  namespace: nas
+spec:
+  parentRefs:
+  - name: gateway
+    namespace: envoy-gateway-system
+    sectionName: https-terminate
+  hostnames:
+  - "nas.zaldre.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: nas-backend
+      port: 8080
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: X-Forwarded-Proto
+          value: https
+        - name: X-Forwarded-Host
+          value: nas.zaldre.com
+

@@ -6,138 +6,133 @@ title = 'gatewayapi | replacing ingress-nginx with envoy'
 
 If you've been living under a rock, or maybe just busy with real life stuff, you might've missed the recent news that the fan favorite <a href="https://github.com/kubernetes/ingress-nginx">ingress-nginx</a> is going to be <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">deprecated</a>
 
-As someone who uses this software extensively both personally and professionally, this is a hard pill to swallow, but a perfect opportunity to prioritise learning the Gateway API
-
+As someone who uses this software extensively both personally and professionally, this is a hard pill to swallow, but a perfect opportunity to prioritise learning the Gateway API. After all, if you're going to migrate anyway, you might as well do it on your own terms rather than waiting until the last minute when you're dealing with a production incident at 3am.
 
 ## What is it? ##
 
-The Gateway API is a way to control traffic into your Kubernetes clusters from outside. It provides a vendor agnostic way for this traffic to enter the cluster and provides more strict governance and control
+The Gateway API is Kubernetes' next-generation way to control traffic into your clusters from outside. Think of it as Ingress 2.0, but with way more power and flexibility. It provides a vendor-agnostic, standardized way for traffic to enter your cluster while giving you much more granular control over routing, security, and traffic management.
 
+Unlike the original Ingress resource (which was more of a suggestion than a specification), the Gateway API is a proper standard that multiple implementations can follow. This means you're not locked into a single vendor's interpretation of how things should work.
 
 ## What problem does this solve? ##
 
-Historically with Ingress resources, there are a few key limitations and concerns. 
+Historically with Ingress resources, there are a few key limitations that can make your life difficult:
 
-** DAda **
-** Dada **
+**Limited expressiveness**: Want to do something slightly complex? Good luck. Ingress resources are pretty basic—they can route traffic based on hostname and path, but that's about it. 
+
+**Vendor lock-in through annotations**: They're the bane of portability. What works with ingress-nginx might not work with Traefik, and vice versa. You end up with manifests that are tightly coupled to your ingress controller of choice.
+
+**Role separation**: With Ingress, you typically need a high level of permissions to create routes. There's no separation of concerns. This means you may need to give developers more access than you care to.
+
+**Limited traffic management**: Want session affinity? Rate limiting? Advanced load balancing? You're back to those vendor-specific annotations again.
+
+The Gateway API addresses all of these by providing a richer, more expressive API that's consistent across implementations. Plus, it introduces role-based access control at the API level, so you can let teams manage their own routes without giving them full cluster access.
 
 ## How does it work? ##
 
-kind uses Docker to create containers that act as Kubernetes nodes. Each container runs a small Kubernetes distribution, and kind handles the networking and configuration to make them work together as a cluster.
+The Gateway API introduces several new resource types that work together:
 
-The magic happens through Docker-in-Docker—kind containers which run the Kubernetes components (kubelet, kube-apiserver, etc.) directly, giving you a real Kubernetes experience without the overhead of virtual machines or cloud resources.
+- **GatewayClass**: Defines which controller implementation you want to use (like choosing between ingress-nginx and Traefik, but at the API level)
+- **Gateway**: The actual entry point into your cluster—think of it as the load balancer or reverse proxy
+- **HTTPRoute**: The routing rules that attach to a Gateway (this is the replacement for Ingress)
+- **BackendTrafficPolicy**: Advanced traffic management like load balancing, timeouts, and retries
+- **SecurityPolicy**: Security controls like IP whitelisting, authentication, and rate limiting
+
+The beauty of this design is that it separates concerns. Infrastructure teams can manage the Gateway (the entry point), while application teams can manage their HTTPRoutes (the routing rules) without stepping on each other's toes.
+
+In addition, In previous implementations of Ingress, I had to copy my wildcard SSL certificate to all namespaces. In Gateway API this is no longer required.
+
+## My implementation: Envoy Gateway ##
+
+For my home lab setup, I chose <a href="https://gateway.envoyproxy.io">Envoy Gateway</a> as the implementation. Envoy is battle-tested, performant, and has excellent observability. Plus, the Envoy Gateway project makes it dead simple to deploy—it's just a Helm chart.
 
 ### Installation ###
 
-Getting started with kind is straightforward. You'll need <a href="https://www.docker.com/">Docker</a> installed and running on your machine.
+I'm running this on a Talos cluster with ArgoCD managing everything via GitOps, so the installation is handled through an ArgoCD Application:
 
-Once that's done, you'll need to install the kind binaries
+{{< code "gateway/envoy-helm.yml" "yaml" >}}
 
-You can check the latest version and installation instructions at <a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">kind's documentation</a>
+This deploys Envoy Gateway v1.6.0 into the `envoy-gateway-system` namespace. The Helm chart handles all the heavy lifting—deploying the controller, setting up RBAC, and managing the lifecycle. This also installs the Gateway API CRD's which at the time of writing are not installed in the cluster by default.
 
-### Creating your first cluster ###
+### Setting up the Gateway ###
 
-Once kind is installed, creating a cluster is as simple as:
+Once Envoy Gateway is installed, you need to create three resources to get traffic flowing:
 
-```bash
-kind create cluster --name my-cluster
-```
+**1. GatewayClass** - This tells Kubernetes which controller should handle Gateway resources:
 
-This creates a single-node cluster named "my-cluster". kind will automatically configure kubectl to use this cluster, so you can immediately start using `kubectl` commands.
+{{< code "gateway/envoy-gatewayclass.yml" "yaml" >}}
 
-To verify everything is working:
+**2. EnvoyProxy** - This is Envoy-specific configuration for how the gateway should be deployed. In my case, I'm using MetalLB for load balancing, so I specify a static IP:
 
-```bash
-kubectl cluster-info --context kind-my-cluster
-kubectl get nodes
-```
+{{< code "gateway/envoy-proxy.yml" "yaml" >}}
 
-### Multi-node clusters ###
+**3. Gateway** - The actual entry point. This is where you define your listeners (ports, protocols, TLS settings):
 
-One of kind's powerful features is the ability to create multi-node clusters using a simple configuration file. This is great for testing features that require multiple nodes, like pod scheduling or node affinity.
+{{< code "gateway/envoy-gateway.yml" "yaml" >}}
 
-Create a file called `kind-config.yaml`:
+This Gateway listens on port 443 for HTTPS traffic to any `*.zaldre.com` hostname, terminates TLS using a wildcard certificate, and allows routes from all namespaces.
 
-{{< code "kind/kind-config.yml" "yaml" >}}
+### Creating routes ###
 
-Then create the cluster with:
+Now for the fun part—creating routes for your applications. Each application gets its own HTTPRoute resource. Here's an example for my Immich instance:
 
-```bash
-kind create cluster --name multi-node --config kind-config.yml
-```
+{{< code "gateway/immich-route.yml" "yaml" >}}
 
-This gives you a cluster with three control plane nodes and three worker nodes—perfect for testing more complex scenarios.
+Let me break down what's happening here:
 
-### Loading container images ###
+**The HTTPRoute** defines the basic routing:
+- It attaches to the `gateway` in the `envoy-gateway-system` namespace
+- Routes traffic for `immich.zaldre.com` to the `immich-server` service on port 2283
+- Sets the `X-Forwarded-Proto` header so the backend knows it's receiving HTTPS traffic
 
-One common challenge with Kubernetes is that you need to pull images from container registries during testing. This makes working offline or testing local images slow and laborious.
+**The SecurityPolicy** adds IP whitelisting:
+- Only allows traffic from private IP ranges (10.0.0.0/8 and 192.168.0.0/16)
+- Denies everything else by default
+- This is way cleaner than the annotation-based approach you'd use with ingress-nginx
 
-kind solves this with the `kind load docker-image` command.
+**The BackendTrafficPolicy** configures session affinity:
+- Uses cookie-based consistent hashing for load balancing
+- Ensures users stick to the same backend pod (important for stateful applications)
+- Sets a 48-hour cookie TTL with SameSite=Lax
 
-```bash
-#Basic Dockerfile Example.
-FROM alpine
-RUN apk add --no-cache nginx
-```
+### More examples ###
 
-```bash
-# Build your image locally
-docker build -t my-app:latest .
+Not every route needs all these policies. Here's a simpler one for Bazarr:
 
-# Load it into the kind cluster
-kind load docker-image my-app:latest --name my-cluster
-```
+{{< code "gateway/bazarr-route.yml" "yaml" >}}
 
-Now your pods can use `my-app:latest` without needing to pull from a registry.
+Same pattern—HTTPRoute with SecurityPolicy and BackendTrafficPolicy. Once you've done one, the rest are just copy-paste with different hostnames and service names.
 
-### Example: Deploying a simple application ###
+### External backends ###
 
-Here's a quick example of deploying an application to kind:
+One cool thing I discovered is that Gateway API can route to services outside your cluster. I use this for my NAS:
 
-```bash
-# Create a cluster
-kind create cluster --name test-app
+{{< code "gateway/nas-route.yml" "yaml" >}}
 
-# Create a namespace
-kubectl create namespace demo
+This creates a Service without a selector (making it a headless service), then uses an EndpointSlice to point to an external IP address (10.0.0.200). The HTTPRoute then routes to this service just like any other. The gateway terminates TLS and forwards plain HTTP to the backend, which is perfect for devices that don't handle TLS termination well.
 
-# Deploy a simple nginx deployment
-kubectl create deployment nginx --image=nginx:latest -n demo
+## Migration experience ##
 
-# Expose it as a service
-kubectl expose deployment nginx --port=80 --type=NodePort -n demo
+Migrating from ingress-nginx was surprisingly straightforward. The main steps were:
 
-# Get the service details
-kubectl get svc nginx -n demo
-```
+1. **Install Envoy Gateway** - One Helm chart, done
+2. **Create the Gateway resources** - Three YAML files (GatewayClass, EnvoyProxy, Gateway)
+3. **Convert Ingress to HTTPRoute** - For each application, create an HTTPRoute. The mapping is pretty direct:
+   - `spec.rules[].host` → `spec.hostnames[]`
+   - `spec.rules[].http.paths[]` → `spec.rules[].matches[]`
+   - `spec.rules[].http.paths[].backend` → `spec.rules[].backendRefs[]`
 
-### Cleaning up ###
+4. **Add policies** - This is where it gets interesting. Things that required annotations in ingress-nginx (like IP whitelisting) are now proper API resources (SecurityPolicy). This makes them more discoverable, testable, and maintainable.
 
-When you're done testing, cleaning up is just as easy:
+5. **Test and switch over** - I ran both ingress-nginx and Envoy Gateway in parallel for a bit, routing different hostnames to each, then gradually migrated everything over.
 
-```bash
-# Delete a specific cluster
-kind delete cluster --name my-cluster
+The biggest win? No more annotation soup. Everything is declarative, type-safe, and follows Kubernetes resource patterns. Plus, the separation of concerns means I can delegate route management to different teams without giving them access to the Gateway itself.
 
-# List all your kind clusters
-kind get clusters
+## What about the downsides? ##
 
-# Delete all kind clusters
-kind delete clusters --all
-```
+It's not all sunshine and rainbows. The Gateway API is still evolving, and some features you might be used to from ingress-nginx aren't available yet (or require different approaches). Also, if you're heavily invested in ingress-nginx-specific annotations, you'll need to rethink some of your configurations.
 
----
-
-## Common use cases ##
-
-kind is particularly useful for:
-
-- **Local development**: Test your manifests and applications before deploying to production
-- **CI/CD pipelines**: Run integration tests in a real Kubernetes environment without cloud costs
-- **Operator testing**: Develop and test Kubernetes operators locally
-- **Learning Kubernetes**: Experiment with Kubernetes features without the complexity of cloud setup
-- **Cluster configuration testing**: Validate cluster configurations, network policies, and RBAC rules
-
+That said, the deprecation of ingress-nginx means you're going to have to migrate eventually anyway. Better to do it now while you have time to plan and test, rather than in a panic when something breaks.
 
 ---
 

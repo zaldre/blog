@@ -1,0 +1,27 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gateway
+  namespace: envoy-gateway-system
+spec:
+  gatewayClassName: eg
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: gateway-proxy
+  listeners:
+  - name: https-terminate
+    protocol: HTTPS
+    port: 443
+    hostname: "*.zaldre.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: zaldre-wildcard-tls
+    allowedRoutes:
+      namespaces:
+        from: All
+

@@ -1,0 +1,71 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: immich
+  namespace: immich
+spec:
+  parentRefs:
+  - name: gateway
+    namespace: envoy-gateway-system
+    sectionName: https-terminate
+  hostnames:
+  - "immich.zaldre.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: immich-server
+      port: 2283
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: X-Forwarded-Proto
+          value: https
+
+---
+# SecurityPolicy for IP whitelisting
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: immich-ip-whitelist
+  namespace: immich
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: immich
+  authorization:
+    rules:
+    - action: Allow
+      principal:
+        clientCIDRs:
+        - 10.0.0.0/8
+        - 192.168.0.0/16
+    defaultAction: Deny
+
+---
+# BackendTrafficPolicy for session affinity (cookie-based)
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: immich-affinity
+  namespace: immich
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: immich
+  loadBalancer:
+    type: ConsistentHash
+    consistentHash:
+      type: Cookie
+      cookie:
+        name: route
+        ttl: 48h
+        attributes:
+          SameSite: Lax
+
+
