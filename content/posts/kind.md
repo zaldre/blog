@@ -3,7 +3,7 @@ date = '2025-11-03T10:00:00+11:00'
 draft = false
 title = 'kind | kubernetes in docker'
 +++
-
+<img src="https://kind.sigs.k8s.io/logo/logo.png" style="width: 25%;">
 I've been working with Kubernetes for some time now, and while my preferred platform of choice is <a href="https://www.talos.dev/">talos</a> one of the challenges I've always faced is how to test, develop and iterate quickly without spinning up a full cluster or dealing with expensive cloud resources.
 
 That is where <a href="https://kind.sigs.k8s.io">kind (Kubernetes in Docker)</a> comes in handy

@@ -46,7 +46,7 @@
 <!-- Recent Posts Section -->
 {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
-{{- $recentPosts := first 2 $pages }}
+{{- $recentPosts := first 4 $pages }}
 
 {{- if $recentPosts }}
 <div class="recent-posts-section">

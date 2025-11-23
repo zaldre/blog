@@ -10,11 +10,11 @@ canonifyURLs = false
 [params]
   author = "Zaldre"
   description = "Coding, infrastructure, automation and general tech tom foolery"
+  mainSections = ["posts"]
   # Add your social links if desired
   github = "zaldre"
   linkedin = "chris-simpson-25020667"
   email = "zaldre@zaldre.com"
-  # twitter = "your-handle"
  
   # Profile mode for homepage
   [params.profileMode]

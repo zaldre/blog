@@ -3,7 +3,7 @@ date = '2025-10-21T20:40:02+11:00'
 draft = false
 title = 'external secrets operator | azure keyvault'
 +++
-
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXA1jFeQlizkxcKRoUQtNHY6ZDkWlmwYCZ8w&s" width="30%">
 In recent times I've been automating the builds of many Kubernetes clusters (1500+!) across my organisation, but one of the challenges I've faced has been how to manage <a href="https://kubernetes.io/docs/concepts/configuration/secret/">secrets</a>.
 
 It's one of those things that can be a real headache if you don't automate the pain away, particularly when it comes to a large number of clusters
