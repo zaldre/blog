@@ -10,7 +10,7 @@ ShowReadingTime: false
 Hey there! 👋
 <br><br>
 
-I'm Chris, AKA Zaldre, a DevOps engineer and infrastructure enthusiast who believes in automating the boring stuff so humans can focus on the interesting problems.
+I'm Chris, AKA Zaldre, a Platform Engineer and infrastructure enthusiast who believes in automating the boring stuff so humans can focus on the interesting problems.
 
 ## What I Do
 
