@@ -13,7 +13,7 @@ Enter <a href="https://external-secrets.io">The External Secrets Operator</a>
 
 ## What problem does this solve? ##
 
-If your organisation is anything like mine, secret management at scale can become a real issue (Yes, We have historically seen secrets committed to git)
+If your organisation is anything like mine, secret management at scale can become a real issue (Yes, we have historically seen secrets committed to git).
 
 Managing secrets using ESO means you can quickly rotate compromised credentials, update expired credentials and keep secrets out of your code repository while still continuing to use your GitOps workflow. It also offers the ability to programmatically rotate the credentials periodically, improving security posture and minimising human error.
 
@@ -22,7 +22,7 @@ Managing secrets using ESO means you can quickly rotate compromised credentials,
 
 The external secrets operator manages the lifecycle of secrets within a Kubernetes cluster. This could be a container registry pull credential, an API key, password or any other sensitive data worth protecting.
 
-ESO integrates with a number of back ends such as Hashicorp Vault, Azure Key Vault, AWS, etc 
+ESO integrates with a number of backends such as Hashicorp Vault, Azure Key Vault, AWS, etc.
 https://external-secrets.io/latest/provider/azure-key-vault/
 
 
@@ -57,9 +57,9 @@ az keyvault create --name <VAULT_NAME> --resource-group <RESOURCE_GROUP> --locat
 ### 2. Authentication Methods
 
 You can configure the External Secrets Operator to authenticate to Azure Key Vault in a variety of ways depending on where it's hosted. 
-We won't touch on all the possibilities as they are well document <a href="https://external-secrets.io/latest/provider/azure-key-vault/">here</a>
+We won't touch on all the possibilities as they are well documented <a href="https://external-secrets.io/latest/provider/azure-key-vault/">here</a>.
 
-However here are the 2 primary ones we consume in my environment
+However, here are the 2 primary ones we consume in my environment:
 
 #### Example A: Using a Managed Identity (Recommended in AKS)
 
@@ -140,7 +140,7 @@ az keyvault set-policy \
 
 ### SecretStores - Where the objects are referenced ###
 
-External Secrets Operator supports two main types of "secret stores". A SecretStore/ClusterSecret store is a reference to your vault of choice within Kubernetes and acts as a logical permissions boundary for the secrets to be ingested.
+External Secrets Operator supports two main types of "secret stores". A SecretStore/ClusterSecretStore is a reference to your vault of choice within Kubernetes and acts as a logical permissions boundary for the secrets to be ingested.
 
 - **SecretStore**: This is a namespaced resource. Secrets retrieved via a `SecretStore` are only available inside the same namespace the store is defined in.
 - **ClusterSecretStore**: This is a cluster-scoped resource. Secrets from a `ClusterSecretStore` can be referenced by `ExternalSecrets` objects in any namespace, not just one.
@@ -195,7 +195,7 @@ spec:
           namespace: jenkins
 ```
 
-The important take away from this is you now only manage a much smaller subset of secrets, The one secret into the Vault(s). Everything else is abstracted away.
+The important takeaway from this is you now only manage a much smaller subset of secrets - the one secret into the Vault(s). Everything else is abstracted away.
 
 Updating a secret can now be done easily by updating the value directly in Azure Key Vault—either using the Azure CLI or the Azure Portal web interface.
 
@@ -203,7 +203,7 @@ Updating a secret can now be done easily by updating the value directly in Azure
 
 ## Managing and updating secrets ##
 
-Once you've setup authentication into the vault, you'll then want to manage and update the secrets contained in the vault for consumption in your cluster. There are a few ways to approach it.
+Once you've set up authentication into the vault, you'll then want to manage and update the secrets contained in the vault for consumption in your cluster. There are a few ways to approach it.
 
 The general rule of thumb is that you want to use the "az" cli commands for files, and the webUI for strings
 
@@ -226,7 +226,7 @@ az keyvault secret set --vault-name <VAULT_NAME> --name <SECRET_NAME> --file <FI
 After updating the secret value in Key Vault (via CLI or the Portal), the External Secret will automatically sync the change to your Kubernetes secret on the next refresh.
 
 ---
-That's all for this post, Hope you found it useful, If there's any information you want clarified, thoughts, opinions, please do let me know
+That's all for this post. I hope you found it useful. If there's any information you want clarified, thoughts, or opinions, please do let me know.
 
 <a href="mailto:zaldre@zaldre.com">zaldre@zaldre.com</a>
 

@@ -18,7 +18,7 @@ Unlike the original Ingress resource (which was more of a suggestion than a spec
 
 Historically with Ingress resources, there are a few key limitations that can make your life difficult:
 
-**Limited expressiveness**: Want to do something slightly complex? Good luck. Ingress resources are pretty basic, they can route traffic based on hostname and path, but that's about it. 
+**Limited expressiveness**: Want to do something slightly complex? Good luck. Ingress resources are pretty basic - they can only route traffic based on hostname and path, but that's about it. 
 
 **Vendor lock-in through annotations**: They're the bane of portability. What works with ingress-nginx might not work with Traefik, and vice versa. You end up with manifests that are tightly coupled to your ingress controller of choice.
 
@@ -26,14 +26,14 @@ Historically with Ingress resources, there are a few key limitations that can ma
 
 **Limited traffic management**: Want session affinity? Rate limiting? Advanced load balancing? You're back to those vendor-specific annotations again.
 
-The Gateway API addresses all of these by providing a richer, more expressive API that's consistent across implementations. Plus, it introduces role-based access control at the API level
+The Gateway API addresses all of these by providing a richer, more expressive API that's consistent across implementations. Plus, it introduces role-based access control at the API level.
 
 ## How does it work? ##
 
 The Gateway API introduces several new resource types that work together:
 
 - **GatewayClass**: Defines which controller implementation you want to use (like choosing between ingress-nginx and Traefik, but at the API level)
-- **Gateway**: The actual entry point into your cluster, think of it as the load balancer or reverse proxy
+- **Gateway**: The actual entry point into your cluster - think of it as the load balancer or reverse proxy
 - **HTTPRoute**: The routing rules that attach to a Gateway (this is the replacement for Ingress)
 - **BackendTrafficPolicy**: Advanced traffic management like load balancing, timeouts, and retries
 - **SecurityPolicy**: Security controls like IP whitelisting, authentication, and rate limiting
@@ -44,7 +44,7 @@ The beauty of this design is that it separates concerns. Infrastructure teams ca
 
 For my home lab setup, I chose <a href="https://gateway.envoyproxy.io">Envoy Gateway</a> as the implementation. Envoy is battle-tested, performant, and has excellent observability. Plus, the Envoy Gateway project makes it dead simple to deploy, it's just a Helm chart.
 
-In this example we will be keeping it simple and using 1 Gateway that will handle both internal (LAN) and external (WAN) traffic. In production, you'd likely want to create 2 different Gateways using 2 Loadbalancers to create the required segregation
+In this example we will be keeping it simple and using 1 Gateway that will handle both internal (LAN) and external (WAN) traffic. In production, you'd likely want to create 2 different Gateways using 2 Load Balancers to create the required segregation.
 
 ### Installation ###
 
@@ -52,7 +52,7 @@ I'm running this on a Talos cluster with ArgoCD managing everything via GitOps, 
 
 {{< code "gateway/envoy-helm.yml" "yaml" >}}
 
-This deploys Envoy Gateway v1.6.0 into the `envoy-gateway-system` namespace. The Helm chart handles all the heavy lifting, deploying the controller, setting up RBAC, and managing the lifecycle. This also installs the Gateway API CRD's which at the time of writing are not installed in the cluster by default.
+This deploys Envoy Gateway v1.6.0 into the `envoy-gateway-system` namespace. The Helm chart handles all the heavy lifting - deploying the controller, setting up RBAC, and managing the lifecycle. This also installs the Gateway API CRDs, which at the time of writing are not installed in the cluster by default.
 
 ### Setting up the Gateway ###
 
@@ -74,7 +74,7 @@ This Gateway listens on port 443 for HTTPS traffic to any `*.zaldre.com` hostnam
 
 ### Creating routes ###
 
-Now for the fun part, creating routes for your applications. Each application gets its own HTTPRoute resource. Let's start with a simple example, my stats dashboard, which is accessible from both internal and external networks:
+Now for the fun part - creating routes for your applications. Each application gets its own HTTPRoute resource. Let's start with a simple example—my stats dashboard, which is accessible from both internal and external networks:
 
 {{< code "gateway/stats-route.yml" "yaml" >}}
 
@@ -82,7 +82,7 @@ This is a straightforward route:
 - Routes traffic for `stats.zaldre.com` to the `stats` service on port 80
 - Sets the `X-Forwarded-Proto` header so the backend knows it's receiving HTTPS traffic
 - Uses a BackendTrafficPolicy for session affinity (cookie-based load balancing)
-- Notice there's no SecurityPolicy here, this route is open to both internal and external traffic
+- Notice there's no SecurityPolicy here - this route is open to both internal and external traffic
 
 The annotations on the HTTPRoute are for external-dns integration, which automatically creates DNS records for the hostname.
 
@@ -144,7 +144,7 @@ That said, the deprecation of ingress-nginx means you're going to have to migrat
 
 ---
 
-That's all for this post. Hope you found it useful. If there's any information you want clarified, thoughts, opinions, please do let me know
+That's all for this post. I hope you found it useful. If there's any information you want clarified, thoughts, or opinions, please do let me know.
 
 <a href="mailto:zaldre@zaldre.com">zaldre@zaldre.com</a>
 

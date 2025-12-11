@@ -4,13 +4,13 @@ draft = false
 title = 'kind | kubernetes in docker'
 +++
 <img src="https://kind.sigs.k8s.io/logo/logo.png" style="width: 25%;">
-I've been working with Kubernetes for some time now, and while my preferred platform of choice is <a href="https://www.talos.dev/">talos</a> one of the challenges I've always faced is how to test, develop and iterate quickly without spinning up a full cluster or dealing with expensive cloud resources.
+I've been working with Kubernetes for some time now, and while my preferred platform is <a href="https://www.talos.dev/">Talos</a>, one of the challenges I've always faced is how to test, develop and iterate quickly without spinning up a full cluster or dealing with expensive cloud resources.
 
 That is where <a href="https://kind.sigs.k8s.io">kind (Kubernetes in Docker)</a> comes in handy
 
 ## What problem does this solve? ##
 
-Kind allows you to quickly and easily spin up Kubernetes clusters from within docker itself. For me I use this when I need to test things like GitOps configurations that have multiple cluster requirements (Think ApplicationSets in ArgoCD). 
+Kind allows you to quickly and easily spin up Kubernetes clusters from within docker itself. I use this when I need to test things like GitOps configurations that have multiple cluster requirements (think ApplicationSets in ArgoCD). 
 
 You can have multiple clusters running as docker containers on the same machine, eliminating the TTD (time to deploy) quite dramatically.
 
@@ -27,9 +27,9 @@ The magic happens through Docker-in-Docker—kind containers which run the Kuber
 
 Getting started with kind is straightforward. You'll need <a href="https://www.docker.com/">Docker</a> installed and running on your machine.
 
-Once that's done, you'll need to install the kind binaries
+Once that's done, you'll need to install the kind binaries.
 
-You can check the latest version and installation instructions at <a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">kind's documentation</a>
+You can check the latest version and installation instructions in kind's documentation <a href="https://kind.sigs.k8s.io/docs/user/quick-start/#installation">here</a>.
 
 ### Creating your first cluster ###
 
@@ -137,7 +137,7 @@ kind is particularly useful for:
 
 ---
 
-That's all for this post. Hope you found it useful. If there's any information you want clarified, thoughts, opinions, please do let me know
+That's all for this post. I hope you found it useful. If there's any information you want clarified, thoughts, or opinions, please do let me know.
 
 <a href="mailto:zaldre@zaldre.com">zaldre@zaldre.com</a>
 

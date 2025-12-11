@@ -14,10 +14,10 @@ I'm Chris, AKA Zaldre, a Platform Engineer and infrastructure enthusiast who bel
 
 ## What I Do
 
-- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastucture architecture design and implementation, both On-Prem and in the cloud
+- **Infrastructure as Code** - Kubernetes, Ansible and Hybrid Infrastructure architecture design and implementation, both On-Prem and in the cloud
 - **Cloud & Container Orchestration** - Making complex systems manageable
 - **CI/CD Pipelines** - Building robust automation that just works
-- **Language Polyglot** - Go, Python, Powershell, C#, Bash, Ansible, English, Thai
+- **Language Polyglot** - Go, Python, PowerShell, C#, Bash, Ansible, English, Thai
 - **Security & Secrets Management** - Keeping production safe and compliant
 
 
@@ -36,7 +36,7 @@ Topics you'll find here:
 
 ## Beyond the Terminal
 
-When I'm not wrestling with YAML files, you can find me being a coffee nerd (Melbourne life), Spending time with my wife Sandhya and my daughter Zoe, Riding my bike around Melbourne's inner west or enjoying a frosty cold beer at the pub
+When I'm not wrestling with YAML files, you can find me being a coffee nerd (Melbourne life), spending time with my wife Sandhya and my daughter Zoe, riding my bike around Melbourne's inner west, or enjoying a frosty cold beer at the pub.
 
 ## Get in Touch
 
