@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns-cloudflare
+  namespace: external-dns
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns-cloudflare
+  template:
+    metadata:
+      labels:
+        app: external-dns-cloudflare
+    spec:
+      serviceAccountName: external-dns-cloudflare
+      containers:
+        - name: external-dns
+          resources: {}
+          image: registry.k8s.io/external-dns/external-dns:v0.20.0
+          args:
+            - --source=ingress # ingress is also possible
+            - --source=gateway-httproute
+           # - --annotation-filter=external-dns.alpha.kubernetes.io/enabled=true
+            - --annotation-filter=external-dns.alpha.kubernetes.io/hostname
+            - --force-default-targets
+            - --default-targets=1.2.3.4
+            - --provider=cloudflare
+           #- --txt-prefix=edns-  # This will create "edns-zaldre.com" instead of "a-zaldre.com"
+            - --txt-owner-id=default
+           # - --txt-ttl=300 # Set TTL for TXT ownership tracking records to prevent constant updates
+            - --cloudflare-dns-records-per-page=5000 # (optional) configure how many DNS records to fetch per request
+            - --cloudflare-record-comment="provisioned by external-dns" # (optional) configure comments for provisioned records; <=100 chars for free zones; <=500 chars for paid zones
+          env:
+              - name: CF_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflareapikey
+                    key: cloudflareapikey
+              - name: CF_API_EMAIL
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflareapikey
+                    key: email

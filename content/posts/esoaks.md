@@ -42,6 +42,8 @@ Here's a registry credential I make available to my Jenkins instance. This makes
 
 ## Creating the Azure Key Vault and Configuring Authentication
 
+**Environment:** Talos v1.11.5 | Kubernetes v1.34.2
+
 Before storing or retrieving secrets, you need an Azure Key Vault instance for your secrets, and configure how your cluster will authenticate to it.
 
 ---

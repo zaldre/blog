@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns-pihole
+  namespace: external-dns
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: external-dns-pihole
+  template:
+    metadata:
+      labels:
+        app: external-dns-pihole
+    spec:
+
+      serviceAccountName: external-dns-pihole
+      containers:
+      - name: external-dns-pihole
+        resources: {}
+        image: registry.k8s.io/external-dns/external-dns:v0.20.0
+        # If authentication is disabled and/or you didn't create
+        # a secret, you can remove this block.
+        envFrom:
+        - secretRef:
+            # Change this if you gave the secret a different name
+            name: pihole-password
+        args:
+        - --source=gateway-httproute
+        - --source=gateway-tcproute
+        - --source=ingress
+        # Pihole only supports A/AAAA/CNAME records so there is no mechanism to track ownership.
+        # You don't need to set this flag, but if you leave it unset, you will receive warning
+        # logs when ExternalDNS attempts to create TXT records.
+        - --registry=noop
+        # IMPORTANT: If you have records that you manage manually in Pi-hole, set
+        # the policy to upsert-only so they do not get deleted.
+        - --policy=sync 
+        - --provider=pihole
+        # Switch to pihole V6 API
+        - --pihole-api-version=6
+        # Change this to the actual address of your Pi-hole web server
+        - --pihole-server=http://pihole-web.pihole.svc.cluster.local
+        - --default-targets=10.0.0.180
+        - --force-default-targets
+      securityContext:
+        fsGroup: 65534 # For ExternalDNS to be able to read Kubernetes token files

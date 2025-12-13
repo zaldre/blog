@@ -42,6 +42,8 @@ The beauty of this design is that it separates concerns. Infrastructure teams ca
 
 ## My implementation: Envoy Gateway ##
 
+**Environment:** Talos v1.11.5 | Kubernetes v1.34.2
+
 For my home lab setup, I chose <a href="https://gateway.envoyproxy.io">Envoy Gateway</a> as the implementation. Envoy is battle-tested, performant, and has excellent observability. Plus, the Envoy Gateway project makes it dead simple to deploy, it's just a Helm chart.
 
 In this example we will be keeping it simple and using 1 Gateway that will handle both internal (LAN) and external (WAN) traffic. In production, you'd likely want to create 2 different Gateways using 2 Load Balancers to create the required segregation.
