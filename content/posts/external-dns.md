@@ -1,5 +1,5 @@
 +++
-date = '2025-12-15T10:00:00+11:00'
+date = '2025-12-15T8:00:00+11:00'
 draft = false
 title = 'external-dns | automating dns for pihole and cloudflare'
 +++
