@@ -31,7 +31,7 @@ ExternalDNS runs as a deployment in your cluster and watches for changes to Kube
 3. Creates or updates the DNS record in your configured provider
 4. Periodically reconciles to ensure the DNS records match what's in Kubernetes
 
-The magic happens through the hostname definition in your Ingress/HTTPRoute/TCPRoute. ExternalDNS picks it up and will sync this periodically to your DNS provider of choice.
+The magic happens through the hostname definition in your Ingress/HTTPRoute. ExternalDNS picks it up and will sync this periodically to your DNS provider of choice.
 
 For providers that support ownership tracking (like Cloudflare), it also creates TXT records to track which records it manages, preventing conflicts with manually created records.
 
@@ -41,7 +41,7 @@ For providers that support ownership tracking (like Cloudflare), it also creates
 
 I'm running two separate ExternalDNS deployments - one for Pi-hole (internal only) and one for Cloudflare (internet facing). This gives me flexibility to have split brain DNS depending on whether I'm at home or not.
 
-I also annotate the services with something that indicates the service is internet facing for the Cloudflare instance to pick up and manage.
+I also selectivly annotate the services with something that indicates the service is internet facing for the Cloudflare instance to pick up and manage.
 
 EG: (external-dns.alpha.kubernetes.io/hostname: stats.zaldre.com)
 
@@ -107,7 +107,7 @@ For more information on this integration, see my post <a href="https://zaldre.co
 
 ### Cloudflare configuration ###
 
-For external DNS, I'm using Cloudflare. The Cloudflare ExternalDNS deployment:
+For public facing DNS, I'm using Cloudflare. The Cloudflare ExternalDNS deployment:
 
 - Watches for Ingress and Gateway HTTPRoute resources
 - Creates A records pointing to my external IP
@@ -133,14 +133,14 @@ For external DNS, I'm using Cloudflare. The Cloudflare ExternalDNS deployment:
 Key configuration points for Cloudflare:
 
 - `--txt-owner-id=default`: This is used to track ownership. All TXT records created by this ExternalDNS instance will be tagged with this owner ID. If you run multiple ExternalDNS instances (e.g., for different environments), use different owner IDs.
-- `--annotation-filter=external-dns.alpha.kubernetes.io/hostname`: Only processes resources that have this annotation. This gives you fine-grained control over which routes get DNS records.
+- `--annotation-filter=external-dns.alpha.kubernetes.io/hostname`: Only processes resources that have this annotation. This gives you fine-grained control over which routes get exposed to the internet.
 - `--default-targets=1.2.3.4`: My external IP address. All A records will point here.
 - `--cloudflare-dns-records-per-page=5000`: Cloudflare's API paginates results. This increases the page size to reduce API calls.
 - `--cloudflare-record-comment`: Adds a comment to each DNS record for easier identification in the Cloudflare dashboard.
 
 **Authentication:**
 
-Cloudflare requires an API key and email. Again, I'm using External Secrets Operator:
+Cloudflare requires an API key and email. Again, I'm using the External Secrets Operator:
 
 {{< code "external-dns/cloudflare-external-secret.yml" "yaml" >}}
 
@@ -180,14 +180,12 @@ You might be wondering why I'm running two separate deployments instead of confi
 3. **Different sources**: I might want to watch different resource types or use different annotation filters
 4. **Isolation**: If one provider has issues, the other keeps working
 
-That said, you could absolutely run a single ExternalDNS deployment with multiple provider configurations if your use case is simpler.
-
 ## Troubleshooting tips ##
 
 If DNS records aren't appearing, here are some things to check:
 
 1. **Check the logs**: `kubectl logs -n external-dns deployment/external-dns-pihole` (or `external-dns-cloudflare`)
-2. **Verify annotations**: Make sure your HTTPRoute/Ingress has `external-dns.alpha.kubernetes.io/hostname` annotation and that the "hostname" is correctly defined in your HTTPRoute/Ingress
+2. **Verify annotations**: For internet facing configs, Make sure your HTTPRoute/Ingress has `external-dns.alpha.kubernetes.io/hostname` annotation and that the "hostname" is correctly defined in your HTTPRoute/Ingress
 3. **Check RBAC**: Ensure the service account has permissions to read the resources you're watching
 4. **Authentication**: Verify secrets are correctly mounted and environment variables are set
 5. **Provider connectivity**: For Pi-hole, ensure the service is reachable at the configured URL. For Cloudflare, verify API credentials are valid
@@ -206,7 +204,7 @@ ExternalDNS is great, but it's not perfect:
 
 ## Other callouts ##
 
-This configuration is specific to my setup, you'll want to tweak this to your needs. In particular, the `--default-targets` and `--force-default-targets` params are useful in a home lab, but you probably want to omit this for prod. By default, it will pickup the IP of the loadbalancer the service is utilising to determine the IP.
+This configuration is specific to my setup, you'll want to tweak this to your needs. In particular, the `--default-targets` and `--force-default-targets` params are useful in a home lab, but you probably want to omit this for prod. You can configure it to pickup the IP address of the relevant loadbalancer your ingress/api gateway is attached to which is likely preferable for business use cases.
 
 
 ---
