@@ -181,6 +181,23 @@ body:not(.dark) .button:hover {
     padding: 0;
 }
 
+/* Profile section buttons - white text */
+.profile .button {
+    color: rgb(255, 255, 255) !important;
+}
+
+.profile .button span {
+    color: rgb(255, 255, 255) !important;
+}
+
+.profile .button:hover {
+    color: rgb(255, 255, 255) !important;
+}
+
+.profile .button:hover span {
+    color: rgb(255, 255, 255) !important;
+}
+
 /* Home Info Styling */
 .home-info {
     background: linear-gradient(135deg, var(--entry) 0%, var(--theme) 100%);

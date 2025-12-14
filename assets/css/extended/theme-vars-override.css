@@ -14,7 +14,7 @@
 .dark {
     --theme: rgb(10, 10, 15);
     --entry: rgb(20, 20, 30);
-    --primary: rgb(0, 255, 255); /*CYAN */
+    --primary: rgb(35, 70, 100); /* Darker steel blue for titles/links */
     --secondary: rgb(255, 255, 255); /* Electric purple */
     --tertiary: rgb(255, 105, 180);
     --content: rgb(255, 255, 255);
