@@ -364,6 +364,11 @@ body:not(.dark) .home-info .entry-content {
     font-size: 0.9rem;
 }
 
+/* Override list page background to use darker theme */
+.list {
+    background: var(--theme) !important;
+}
+
 /* Prevent horizontal overflow on all devices, especially Android */
 html, body {
     overflow-x: hidden;
@@ -375,6 +380,7 @@ body {
     width: 100%;
     margin: 0;
     padding: 0;
+    background: var(--theme) !important;
 }
 
 /* Ensure main container is properly centered and doesn't overflow */

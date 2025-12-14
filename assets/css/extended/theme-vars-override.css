@@ -1,7 +1,7 @@
 /* Light mode - Darker sky blue theme */
 :root {
-    --theme: rgb(70, 130, 180); /* Steel blue background */
-    --entry: rgb(65, 105, 225); /* Royal blue for cards/entries */
+    --theme: rgb(35, 70, 100); /* Darker steel blue background */
+    --entry: rgb(45, 85, 130); /* Darker blue for cards/entries */
     --primary: rgba(255, 255, 255, 0.95); /* White text */
     --secondary: rgba(255, 255, 255, 0.78); /* Slightly transparent white for secondary text */
     --tertiary: rgba(255, 255, 255, 0.56); /* Even more transparent white */
